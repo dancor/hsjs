@@ -69,6 +69,10 @@
 	function copy(obj){
 		return array(obj) ? [].slice.call(obj) : hs.map( id, obj );
 	};
+        eq = curry(function(a, b) {
+                return JSON.stringify(a) === JSON.stringify(b);
+        });
+
 	
 	each({
 		each: function( f, list ){
@@ -113,11 +117,7 @@
 			return hs.drop( i, list );
 		},
 		elem:function( obj, list ){
-			var has = false;
-			each( list, function( v ){
-				has = has || v === obj;
-			});
-			return has;
+                        return any(eq(obj), list);
 		},
 		join:function( chr, list ){
 			return makeArray(list).join(chr);
@@ -135,11 +135,6 @@
 			list.push(obj);
 			return list;
 		},
-		replicate:function( times, obj ){
-			// In case it was a string
-			obj = makeString(obj);
-			return hs.map( _('const',obj), Array(times) );
-		}
 		// TODO: cycle
 	}, function( fn, name ){
 		hs[name] = curry(function( a, list ){
@@ -152,6 +147,23 @@
 			return str ? makeString(list) : list;
 		});
 	});
+        function clone(a) {
+                return JSON.parse(JSON.stringify(a));
+        }
+        replicate = curry(function(n, a) {
+                var ret = [];
+                for (var i = 0; i < n; i++) {
+                        ret[i] = a;
+                }
+                return ret;
+        });
+        replicateObj = curry(function(n, a) {
+                var ret = [];
+                for (var i = 0; i < n; i++) {
+                        ret[i] = clone(a);
+                }
+                return ret;
+        });
 	
 	each({
 		foldl:function( f, accum, list ){
